@@ -2,9 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Random;
-
+import java.util.Scanner;
 
 public class GamePanel extends JPanel implements ActionListener {
 
@@ -43,10 +42,14 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-        draw(g);
+        try {
+            draw(g);
+        } catch (IOException e) {
+            System.out.println(e);
+        }
     }
 
-    public void draw(Graphics g){
+    public void draw(Graphics g) throws IOException {
         if (running) {
 //            for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
 //                g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
@@ -127,22 +130,27 @@ public class GamePanel extends JPanel implements ActionListener {
         if(!running) timer.stop();
     }
 
-    public void gameOver(Graphics g)  {
-        High_Score high_score = new High_Score();
-        high_score.high(applesEaten);
-        System.out.println(high_score.count);
+    public void gameOver(Graphics g) throws IOException {
 
+        //Put values into the file
+        String filePath = "C:\\Users\\elbek\\IdeaProjects\\SnakeGame\\src\\HighScore.txt";
+        FileOutputStream f = new FileOutputStream(filePath, true);
+        String lineToAppend = Integer.toString(applesEaten);
+        byte[] byteArr = lineToAppend.getBytes(); //converting string into byte array
+        f.write(byteArr);
+        f.write(32);
+        f.close();
 
-        try {
-            String filePath = "C:\\Users\\elbek\\IdeaProjects\\SnakeGame\\src\\HighScore.txt";
-            FileOutputStream f = new FileOutputStream(filePath, true);
-            String lineToAppend = Integer.toString(applesEaten);
-            byte[] byteArr = lineToAppend.getBytes(); //converting string into byte array
-            f.write(byteArr);
-            f.close();
-        } catch(Exception e) {
-            System.out.println(e);
-        }
+        //Largest score becomes HIGH_SCORE
+        File file = new File("C:\\Users\\elbek\\IdeaProjects\\SnakeGame\\src\\HighScore.txt");
+        Scanner scan = new Scanner(file);
+        String info = "";
+        while (scan.hasNextLine()) info += scan.nextLine();
+        String[] stringList = info.split(" ");
+        Integer[] intList = new Integer[stringList.length];
+        int i = 0;
+        for (String each : stringList) intList[i++] = Integer.parseInt(each);
+        for (Integer each : intList) if(each>HIGH_SCORE) HIGH_SCORE=each;
 
         //Score
         g.setColor(Color.red);
