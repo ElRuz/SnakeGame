@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 
@@ -10,7 +12,7 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_WIDTH*SCREEN_HEIGHT)/UNIT_SIZE;
-    static final int DELAY = 90;
+    static final int DELAY = 100;
     final int x[] = new int[GAME_UNITS];
     final int y[] = new int[GAME_UNITS];
     int bodyParts = 6;
@@ -21,6 +23,7 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean running = false;
     Timer timer;
     Random random;
+    static int HIGH_SCORE;
 
     GamePanel(){
         random = new Random();
@@ -58,7 +61,6 @@ public class GamePanel extends JPanel implements ActionListener {
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 } else {
                     g.setColor(new Color(45, 180, 0));
-                    g.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
             }
@@ -125,7 +127,23 @@ public class GamePanel extends JPanel implements ActionListener {
         if(!running) timer.stop();
     }
 
-    public void gameOver(Graphics g){
+    public void gameOver(Graphics g)  {
+        High_Score high_score = new High_Score();
+        high_score.high(applesEaten);
+        System.out.println(high_score.count);
+
+
+        try {
+            String filePath = "C:\\Users\\elbek\\IdeaProjects\\SnakeGame\\src\\HighScore.txt";
+            FileOutputStream f = new FileOutputStream(filePath, true);
+            String lineToAppend = Integer.toString(applesEaten);
+            byte[] byteArr = lineToAppend.getBytes(); //converting string into byte array
+            f.write(byteArr);
+            f.close();
+        } catch(Exception e) {
+            System.out.println(e);
+        }
+
         //Score
         g.setColor(Color.red);
         g.setFont(new Font("Ink Free", Font.BOLD, 40));
@@ -137,6 +155,14 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font("Ink Free", Font.BOLD, 75));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics2.stringWidth("Game Over"))/2, SCREEN_HEIGHT/2);
+
+        //High Score
+        g.setColor(Color.red);
+        g.setFont(new Font("Ink Free", Font.BOLD, 40));
+        FontMetrics metrics3 = getFontMetrics(g.getFont());
+        g.drawString("High Score: " + HIGH_SCORE, (SCREEN_WIDTH - metrics3.stringWidth("High Score: " + HIGH_SCORE))/2, SCREEN_HEIGHT - 30);
+
+
     }
 
     @Override
@@ -168,5 +194,6 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
     }
+
 
 }
